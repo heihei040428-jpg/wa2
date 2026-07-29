@@ -1,4 +1,4 @@
-const CACHE = 'ui-demo-v1';
+const CACHE = 'ui-demo-v2';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png'];
 
 self.addEventListener('install', e => {

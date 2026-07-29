@@ -116,6 +116,22 @@ body{background:#F4F1EA}
 .chat-area::-webkit-scrollbar{display:none}
 .chat-wrap{flex:1;position:relative;display:flex;min-height:0}
 .chat-wrap .chat-area{flex:1}
+.row.pressed .bubble{filter:brightness(.93)}
+.edit-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:center;justify-content:center;padding:24px}
+.edit-overlay.on{display:flex}
+.edit-box{background:#fff;border-radius:14px;width:100%;max-width:340px;padding:18px}
+.edit-box h3{font-size:16px;margin-bottom:12px;color:#101010}
+.edit-box textarea{width:100%;min-height:96px;border:1px solid #d8d2ca;border-radius:9px;padding:10px;font-size:15px;font-family:inherit;resize:vertical;outline:none}
+.edit-box .row-btn{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+.edit-box button{padding:8px 18px;border-radius:8px;border:none;font-size:14px}
+.edit-box .cancel{background:#eee;color:#333}
+.edit-box .ok{background:#1F7A5C;color:#fff}
+.ctx-menu{display:none;position:fixed;background:#fff;border-radius:11px;box-shadow:0 6px 24px rgba(0,0,0,.22);z-index:310;overflow:hidden;min-width:150px}
+.ctx-menu.on{display:block}
+.ctx-item{padding:12px 18px;font-size:15px;color:#101010}
+.ctx-item:active{background:#f0f0f0}
+.ctx-item+.ctx-item{border-top:1px solid #f0f0f0}
+.ctx-item.del{color:#e0245e}
 </style>
 </head>
 <body>
@@ -152,12 +168,26 @@ body{background:#F4F1EA}
   <div class="plus"><svg viewBox="0 0 26 26"><path d="M13 5v16M5 13h16"/></svg></div>
   <div class="field">
     <input type="text" placeholder="" readonly>
-    <svg class="sticker" viewBox="0 0 22 22"><path d="M12.4 1.15a9.85 9.85 0 108.45 8.5h-6.2a2.3 2.3 0 01-2.25-2.3z"/></svg>
+    <svg class="sticker" viewBox="0 0 22 22"><path d="M3 4.2A2.2 2.2 0 015.2 2h11.6A2.2 2.2 0 0119 4.2v8.05a2.2 2.2 0 01-.64 1.55l-4.56 4.56a2.2 2.2 0 01-1.55.64H5.2A2.2 2.2 0 013 17.4z"/><path d="M18.8 12.4h-4.15a2.2 2.2 0 00-2.2 2.2v4.15"/></svg>
   </div>
   <svg class="icon cam" viewBox="0 0 29 25"><path d="M2.2 6.2h4.6L8.6 3.3h11.8l1.8 2.9h4.6a1.2 1.2 0 011.2 1.2v15.4a1.2 1.2 0 01-1.2 1.2H2.2A1.2 1.2 0 011 22.8V7.4a1.2 1.2 0 011.2-1.2z"/><circle cx="13.2" cy="14.6" r="4.9"/><circle cx="22.3" cy="9.9" r="1.1" fill="#3A3937" stroke="none"/></svg>
   <svg class="icon mic" viewBox="0 0 17 25"><rect x="5.3" y="1.2" width="6.4" height="12.4" rx="3.2"/><path d="M1.6 11.4a6.9 6.9 0 0013.8 0M8.5 18.3v5.5"/></svg>
 </div>
 <div class="home-ind"></div>
+</div>
+<div class="edit-overlay" id="editOverlay">
+  <div class="edit-box">
+    <h3>编辑消息</h3>
+    <textarea id="editText"></textarea>
+    <div class="row-btn">
+      <button class="cancel" id="btnCancel">取消</button>
+      <button class="ok" id="btnSave">保存</button>
+    </div>
+  </div>
+</div>
+<div class="ctx-menu" id="ctxMenu">
+  <div class="ctx-item" data-act="edit">编辑</div>
+  <div class="ctx-item del" data-act="delete">删除</div>
 </div>
 <script>
 const C = {green:'#1F7A5C', orange:'#C1543A', blue:'#2E6FD9', purple:'#7B4FC4'};
@@ -166,8 +196,8 @@ const P = {
   seiseki:{name:'~Seiseki Han', phone:'+81 70-3176-4598', color:C.orange, av:'#B2A79A'},
   vlad:   {name:'~Vlad / Galactica Al...', phone:'+376 360 763', color:C.blue, av:'#5A6B8C'}
 };
-const feed = [
-  {t:'date', label:'6月25日 (水)'},
+const defaultFeed = [
+  {t:'date', label:'6月25日 (木)'},
   {t:'msg', p:'bogdan', text:'Ok, noted', time:'17:18'},
   {t:'msg', p:'bogdan', text:'Did you offer to Europe for other companies?', time:'20:49', cont:true},
   {t:'msg', p:'seiseki', text:'Main is Asian countries', time:'20:51'},
@@ -185,6 +215,11 @@ const feed = [
   {t:'msg', p:'bogdan', text:'Still need basic model iPhone 17 256gb', time:'2:17',
    quote:{p:'bogdan', text:'IPHONE 17 256GB\nWe have request. Please share offer for big qty'}}
 ];
+const STORE_KEY = 'wa_chat_v2';
+let feed;
+try { feed = JSON.parse(localStorage.getItem(STORE_KEY)) || defaultFeed; }
+catch(e){ feed = defaultFeed; }
+function persist(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(feed)); } catch(e){} }
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const br  = s => esc(s).replace(/\n/g,'<br>');
 
@@ -205,22 +240,67 @@ function bubbleHTML(m, showHead){
   h += '<span class="meta"><span class="time">'+esc(m.time)+'</span></span>';
   return h + '</div>';
 }
-function render(){
+function render(keepScroll){
   const area = document.getElementById('chatArea');
+  const prevTop = area.scrollTop, atBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 40;
   let h = '';
   feed.forEach((m,i) => {
     if(m.t === 'date'){ h += '<div class="date-sep"><span>'+esc(m.label)+'</span></div>'; return; }
     const prev = feed[i-1], next = feed[i+1];
     const head = !(prev && prev.t === 'msg' && prev.p === m.p && m.cont);
     const last = !(next && next.t === 'msg' && next.p === m.p && next.cont);
-    h += '<div class="row"><div class="avatar-slot">'
+    h += '<div class="row" data-idx="'+i+'"><div class="avatar-slot">'
       + (last ? '<div class="ph" style="background:'+P[m.p].av+'"></div>' : '')
       + '</div>' + bubbleHTML(m, head) + '</div>';
   });
   area.innerHTML = h + '<div style="height:2px"></div>';
-  area.scrollTop = area.scrollHeight;
+  if(keepScroll && !atBottom) area.scrollTop = prevTop;
+  else area.scrollTop = area.scrollHeight;
 }
 render();
+
+/* ---- long-press edit / delete ---- */
+let pressTimer=null, pressedRow=null, targetIdx=null;
+const chatArea=document.getElementById('chatArea');
+const ctxMenu=document.getElementById('ctxMenu');
+const editOverlay=document.getElementById('editOverlay');
+const editText=document.getElementById('editText');
+
+function startPress(x,y,row){
+  pressedRow=row; row.classList.add('pressed');
+  pressTimer=setTimeout(()=>{
+    targetIdx=parseInt(row.dataset.idx);
+    ctxMenu.style.left=Math.min(x,window.innerWidth-160)+'px';
+    ctxMenu.style.top=Math.min(y,window.innerHeight-120)+'px';
+    ctxMenu.classList.add('on');
+    if(navigator.vibrate) navigator.vibrate(12);
+  },500);
+}
+function cancelPress(){ clearTimeout(pressTimer); if(pressedRow){pressedRow.classList.remove('pressed');pressedRow=null;} }
+
+chatArea.addEventListener('touchstart',e=>{const r=e.target.closest('.row[data-idx]');if(!r)return;startPress(e.touches[0].clientX,e.touches[0].clientY,r);},{passive:true});
+chatArea.addEventListener('touchend',cancelPress);
+chatArea.addEventListener('touchmove',cancelPress);
+chatArea.addEventListener('mousedown',e=>{const r=e.target.closest('.row[data-idx]');if(!r)return;startPress(e.clientX,e.clientY,r);});
+document.addEventListener('mouseup',cancelPress);
+
+document.addEventListener('touchstart',e=>{ if(ctxMenu.classList.contains('on')&&!ctxMenu.contains(e.target)) ctxMenu.classList.remove('on'); },{passive:true});
+document.addEventListener('mousedown',e=>{ if(ctxMenu.classList.contains('on')&&!ctxMenu.contains(e.target)) ctxMenu.classList.remove('on'); });
+
+ctxMenu.querySelectorAll('.ctx-item').forEach(it=>{
+  it.addEventListener('click',()=>{
+    const act=it.dataset.act; ctxMenu.classList.remove('on');
+    if(targetIdx==null) return;
+    if(act==='edit'){ editText.value=feed[targetIdx].text||''; editOverlay.classList.add('on'); }
+    if(act==='delete'){ feed.splice(targetIdx,1); persist(); render(true); targetIdx=null; }
+  });
+});
+document.getElementById('btnCancel').addEventListener('click',()=>{editOverlay.classList.remove('on');targetIdx=null;});
+document.getElementById('btnSave').addEventListener('click',()=>{
+  if(targetIdx!=null&&feed[targetIdx]){ feed[targetIdx].text=editText.value; persist(); render(true); }
+  editOverlay.classList.remove('on'); targetIdx=null;
+});
+
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 </script>
 </body>
