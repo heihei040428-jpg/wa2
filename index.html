@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F4F1EA">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>WhatsApp</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif}
+body{background:#F4F1EA}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;background:#F4F1EA;position:relative}
+.demo-badge{position:fixed;right:8px;bottom:64px;z-index:200;pointer-events:none;
+  background:rgba(0,0,0,.55);color:#fff;font-size:10px;letter-spacing:.5px;
+  padding:3px 7px;border-radius:4px}
+.statusbar{display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px;height:44px;flex-shrink:0;background:#F4F1EA;color:#000;
+  font-size:16px;font-weight:600;letter-spacing:.2px}
+.statusbar .sb-left{display:flex;align-items:center;gap:4px}
+.statusbar .sb-right{display:flex;align-items:center;gap:5px}
+.statusbar .sb-bars{display:flex;align-items:flex-end;gap:1.5px;height:11px}
+.statusbar .sb-bars i{width:3px;background:#000;border-radius:1px}
+.statusbar .sb-bars i:nth-child(1){height:4px}
+.statusbar .sb-bars i:nth-child(2){height:6px}
+.statusbar .sb-bars i:nth-child(3){height:8.5px}
+.statusbar .sb-bars i:nth-child(4){height:11px}
+.statusbar .sb-net{font-size:13px;font-weight:600}
+.statusbar .sb-batt{background:#000;color:#fff;font-size:11.5px;font-weight:600;
+  padding:1.5px 5px;border-radius:5px;line-height:1.15}
+.statusbar .sb-rec{width:13px;height:13px;border-radius:3px;background:#000;
+  display:inline-block;position:relative}
+.statusbar .sb-rec::after{content:'';position:absolute;inset:3.5px;
+  border-radius:1px;background:#F4F1EA}
+.header{display:flex;align-items:center;gap:6px;padding:4px 12px 8px;flex-shrink:0;
+  background:#F4F1EA;position:relative;z-index:10}
+.header .back{display:flex;align-items:center;gap:2px;height:33px;padding:0 11px 0 8px;
+  border-radius:17px;background:rgba(255,255,255,.62);backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);text-decoration:none;flex-shrink:0}
+.header .back svg{width:10px;height:18px;stroke:#0E0B04;stroke-width:2.4;fill:none}
+.header .back span{font-size:16.5px;font-weight:600;color:#0E0B04}
+.header .avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;
+  flex-shrink:0;background:#D3CBC4;margin-left:2px}
+.header .contact-info{flex:1;min-width:0;line-height:1.15}
+.header .contact-name{font-size:16.5px;font-weight:700;color:#000;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header .contact-status{font-size:12.5px;color:#6F6A66;margin-top:1px}
+.header .video-btn{display:flex;align-items:center;gap:4px;height:33px;
+  padding:0 8px 0 11px;border-radius:17px;background:rgba(255,255,255,.62);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);flex-shrink:0}
+.header .video-btn .cam{width:25px;height:16.7px;fill:none;stroke:#0E0B04;
+  stroke-width:2.3;stroke-linejoin:round}
+.header .video-btn .chev{width:9px;height:5.5px;fill:none;stroke:#0E0B04;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chat-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:4px 8px 6px;background-color:#F7F0E8;background-size:190px 190px;
+  background-repeat:repeat;position:relative}
+.chat-area{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='190' height='190' viewBox='0 0 190 190'%3E%3Cg fill='none' stroke='%23EAE1D4' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 22h15v11H21l-4 4v-4h-3z'/%3E%3Cpath d='M52 16c3-3 8-3 11 0s3 8 0 11l-6 6-5-5c-3-3-3-9 0-12z'/%3E%3Ccircle cx='96' cy='22' r='8'/%3E%3Cpath d='M96 17v6l4 2'/%3E%3Crect x='128' y='13' width='12' height='19' rx='2.5'/%3E%3Cpath d='M132 29h4'/%3E%3Cpath d='M164 30l-5-6 3-9h9l3 9-5 6z'/%3E%3Cpath d='M18 62l7-13 7 13z'/%3E%3Crect x='48' y='54' width='17' height='13' rx='2.5'/%3E%3Cpath d='M48 56l8.5 6.5L65 56'/%3E%3Ccircle cx='92' cy='60' r='9'/%3E%3Cpath d='M88 60l3 3 5-6'/%3E%3Cpath d='M124 68c0-6 4-10 9-10s9 4 9 10'/%3E%3Ccircle cx='133' cy='53' r='4.5'/%3E%3Cpath d='M158 52h16v13h-9l-4 4v-4h-3z'/%3E%3Cpath d='M16 104c0-5 4-9 9-9s9 4 9 9-4 9-9 9h-9z'/%3E%3Cpath d='M46 96l9 9-9 9-9-9z'/%3E%3Crect x='84' y='94' width='19' height='14' rx='3'/%3E%3Ccircle cx='93.5' cy='101' r='3.5'/%3E%3Cpath d='M124 112c2-9 14-9 16 0'/%3E%3Ccircle cx='132' cy='98' r='5'/%3E%3Cpath d='M158 96h17l-8.5 18z'/%3E%3Cpath d='M14 140c4-6 14-6 18 0'/%3E%3Ccircle cx='23' cy='134' r='4'/%3E%3Cpath d='M50 132v14M43 139h14'/%3E%3Ccircle cx='50' cy='139' r='9'/%3E%3Crect x='84' y='130' width='13' height='20' rx='2.5'/%3E%3Cpath d='M87 147h7'/%3E%3Cpath d='M122 148l7-14 7 14z'/%3E%3Cpath d='M156 133h18v12h-10l-4 4v-4h-4z'/%3E%3Ccircle cx='24' cy='174' r='8'/%3E%3Cpath d='M20 174h8M24 170v8'/%3E%3Cpath d='M48 166l8 8-8 8-8-8z'/%3E%3Cpath d='M82 180c0-7 5-12 11-12'/%3E%3Cpath d='M120 166h16v12h-9l-4 4v-4h-3z'/%3E%3Ccircle cx='166' cy='173' r='8'/%3E%3Cpath d='M166 168v5l4 3'/%3E%3C/g%3E%3C/svg%3E")}
+.date-sep{text-align:center;margin:14px 0 10px}
+.date-sep span{font-size:13.5px;font-weight:700;color:#3A3937;letter-spacing:.2px}
+.scroll-btn{position:absolute;right:9px;bottom:9px;width:31px;height:31px;
+  border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.14);
+  display:flex;align-items:center;justify-content:center;z-index:5}
+.scroll-btn svg{width:17px;height:17px;fill:none;stroke:#3A3937;stroke-width:2.1}
+.row{display:flex;align-items:flex-end;gap:4px;margin-bottom:2.5px}
+.row.out{justify-content:flex-end}
+.row .avatar-slot{width:27px;height:27px;flex-shrink:0}
+.row .avatar-slot img,.row .avatar-slot .ph{width:27px;height:27px;border-radius:50%;
+  object-fit:cover;display:block;background:#CFC6BE}
+.bubble{position:relative;max-width:78%;border-radius:9.5px;
+  padding:5px 8px 5px;background:#FFF;box-shadow:0 1px 1px rgba(0,0,0,.09);
+  word-wrap:break-word;overflow-wrap:break-word}
+.row.out .bubble{background:#E7FFDB}
+.bubble .sender{display:flex;align-items:baseline;gap:8px;margin-bottom:1px;
+  font-size:14.5px;font-weight:700;white-space:nowrap}
+.bubble .sender .phone{font-size:13px;font-weight:400;color:#667781;
+  margin-left:auto;padding-left:10px}
+.bubble .text{font-size:16.5px;color:#101010;line-height:1.28;
+  white-space:pre-wrap;word-break:break-word}
+.bubble .meta{float:right;display:inline-flex;align-items:center;gap:3px;
+  margin:2px 0 -2px 12px;position:relative;top:4px}
+.bubble .time{font-size:12px;color:#7A7A7A;white-space:nowrap}
+.bubble .ticks{width:15px;height:10px;flex-shrink:0}
+.quote{display:flex;gap:0;background:#F5F5F5;border-radius:5px;overflow:hidden;
+  margin:2px 0 4px;position:relative;padding:4px 8px 5px 9px}
+.quote::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:#0B9C6F}
+.quote .q-head{display:flex;align-items:baseline;gap:8px;font-size:14px;
+  font-weight:700;margin-bottom:1px}
+.quote .q-head .q-phone{font-size:12.5px;font-weight:400;color:#667781;margin-left:auto}
+.quote .q-text{font-size:14px;color:#3B4A54;line-height:1.25;white-space:pre-wrap}
+.bubble .msg-img{width:100%;max-width:210px;border-radius:6px;
+  margin:2px 0 3px;display:block}
+.bottom-bar{display:flex;align-items:center;gap:11px;flex-shrink:0;
+  padding:7px 14px calc(7px + env(safe-area-inset-bottom));background:#F4F1EA}
+.bottom-bar .plus{width:17.5px;height:17.5px;flex-shrink:0;display:flex}
+.bottom-bar .plus svg{width:17.5px;height:17.5px;stroke:#3A3937;stroke-width:2.2;
+  fill:none;stroke-linecap:round}
+.bottom-bar .field{flex:1;display:flex;align-items:center;background:#FFF;
+  border-radius:19px;height:37px;padding:0 10px 0 15px;min-width:0}
+.bottom-bar .field input{flex:1;border:none;outline:none;background:transparent;
+  font-size:16.5px;color:#101010;min-width:0}
+.bottom-bar .field .sticker{width:16.7px;height:17.5px;flex-shrink:0;
+  stroke:#5C5955;stroke-width:1.7;fill:none}
+.bottom-bar .icon{flex-shrink:0}
+.bottom-bar .icon.cam{width:20.9px;height:17.5px;stroke:#3A3937;stroke-width:2;fill:none;
+  stroke-linejoin:round}
+.bottom-bar .icon.mic{width:14.2px;height:20.9px;stroke:#3A3937;stroke-width:2;fill:none;
+  stroke-linecap:round}
+.home-ind{height:5px;width:134px;background:#000;opacity:.9;border-radius:3px;
+  margin:0 auto 8px;flex-shrink:0}
+@media (prefers-color-scheme:dark){
+  body{background:#F4F1EA}
+}
+.chat-area::-webkit-scrollbar{display:none}
+.chat-wrap{flex:1;position:relative;display:flex;min-height:0}
+.chat-wrap .chat-area{flex:1}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="statusbar">
+  <div class="sb-left"><span>17:32</span><span class="sb-rec"></span></div>
+  <div class="sb-right">
+    <span class="sb-bars"><i></i><i></i><i></i><i></i></span>
+    <span class="sb-net">5G</span>
+    <span class="sb-batt">84</span>
+  </div>
+</div>
+<div class="header">
+  <a class="back" href="#" onclick="return false">
+    <svg viewBox="0 0 11 19"><path d="M9.5 1.5L2 9.5l7.5 8"/></svg><span>7</span>
+  </a>
+  <div class="avatar" id="grpAvatar"></div>
+  <div class="contact-info">
+    <div class="contact-name" id="grpName">Tarento &amp; Galactica</div>
+    <div class="contact-status" id="grpStatus">2人がオンライン</div>
+  </div>
+  <div class="video-btn">
+    <svg class="cam" viewBox="0 0 30 20"><rect x="1.4" y="1.4" width="18.2" height="17.2" rx="3.4"/><path d="M20 10l8.6-8v16z"/></svg>
+    <svg class="chev" viewBox="0 0 11 6"><path d="M1 1l4.5 4L10 1"/></svg>
+  </div>
+</div>
+<div class="chat-wrap">
+  <div class="chat-area" id="chatArea"></div>
+  <div class="scroll-btn" id="scrollBtn">
+    <svg viewBox="0 0 17 17"><path d="M3.5 4.5l5 4.5 5-4.5M3.5 9l5 4.5L13.5 9"/></svg>
+  </div>
+</div>
+<div class="bottom-bar">
+  <div class="plus"><svg viewBox="0 0 26 26"><path d="M13 5v16M5 13h16"/></svg></div>
+  <div class="field">
+    <input type="text" placeholder="" readonly>
+    <svg class="sticker" viewBox="0 0 22 22"><path d="M12.4 1.15a9.85 9.85 0 108.45 8.5h-6.2a2.3 2.3 0 01-2.25-2.3z"/></svg>
+  </div>
+  <svg class="icon cam" viewBox="0 0 29 25"><path d="M2.2 6.2h4.6L8.6 3.3h11.8l1.8 2.9h4.6a1.2 1.2 0 011.2 1.2v15.4a1.2 1.2 0 01-1.2 1.2H2.2A1.2 1.2 0 011 22.8V7.4a1.2 1.2 0 011.2-1.2z"/><circle cx="13.2" cy="14.6" r="4.9"/><circle cx="22.3" cy="9.9" r="1.1" fill="#3A3937" stroke="none"/></svg>
+  <svg class="icon mic" viewBox="0 0 17 25"><rect x="5.3" y="1.2" width="6.4" height="12.4" rx="3.2"/><path d="M1.6 11.4a6.9 6.9 0 0013.8 0M8.5 18.3v5.5"/></svg>
+</div>
+<div class="home-ind"></div>
+</div>
+<script>
+const C = {green:'#1F7A5C', orange:'#C1543A', blue:'#2E6FD9', purple:'#7B4FC4'};
+const P = {
+  bogdan: {name:'~Bogdan Datsko', phone:'+376 633 021', color:C.green, av:'#6B6B6F'},
+  seiseki:{name:'~Seiseki Han', phone:'+81 70-3176-4598', color:C.orange, av:'#B2A79A'},
+  vlad:   {name:'~Vlad / Galactica Al...', phone:'+376 360 763', color:C.blue, av:'#5A6B8C'}
+};
+const feed = [
+  {t:'date', label:'6月25日 (水)'},
+  {t:'msg', p:'bogdan', text:'Ok, noted', time:'17:18'},
+  {t:'msg', p:'bogdan', text:'Did you offer to Europe for other companies?', time:'20:49', cont:true},
+  {t:'msg', p:'seiseki', text:'Main is Asian countries', time:'20:51'},
+  {t:'msg', p:'vlad',  text:'Someone from Poland spamming with Pokemon and destroying.\nJust for your information', time:'20:52'},
+  {t:'date', label:'6月26日 (金)'},
+  {t:'msg', p:'bogdan', text:'Hello!', time:'0:09'},
+  {t:'msg', p:'bogdan', text:'IPHONE 17 256GB\nWe have request. Please share offer for big qty', time:'0:09', cont:true},
+  {t:'date', label:'7月7日 (火)'},
+  {t:'msg', p:'bogdan', text:'Hello! iphones 17 can you update price list?', time:'0:31'},
+  {t:'msg', p:'seiseki', text:'Good morning', time:'12:42'},
+  {t:'msg', p:'seiseki', text:'I have 17 Pro max 256GB silver 200pcs  1132usd', time:'12:43', cont:true},
+  {t:'msg', p:'bogdan', text:'Thanks', time:'20:56'},
+  {t:'date', label:'7月11日 (土)'},
+  {t:'msg', p:'bogdan', text:'Hello!', time:'2:16'},
+  {t:'msg', p:'bogdan', text:'Still need basic model iPhone 17 256gb', time:'2:17',
+   quote:{p:'bogdan', text:'IPHONE 17 256GB\nWe have request. Please share offer for big qty'}}
+];
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const br  = s => esc(s).replace(/\n/g,'<br>');
+
+function quoteHTML(q){
+  const w = P[q.p];
+  return '<div class="quote"><div class="q-head" style="color:'+w.color+'">'
+    + '<span>'+esc(w.name)+'</span><span class="q-phone">'+esc(w.phone)+'</span></div>'
+    + '<div class="q-text">'+br(q.text)+'</div></div>';
+}
+
+function bubbleHTML(m, showHead){
+  const w = P[m.p];
+  let h = '<div class="bubble">';
+  if(showHead) h += '<div class="sender" style="color:'+w.color+'">'
+    + '<span>'+esc(w.name)+'</span><span class="phone">'+esc(w.phone)+'</span></div>';
+  if(m.quote) h += quoteHTML(m.quote);
+  h += '<span class="text">'+br(m.text)+'</span>';
+  h += '<span class="meta"><span class="time">'+esc(m.time)+'</span></span>';
+  return h + '</div>';
+}
+function render(){
+  const area = document.getElementById('chatArea');
+  let h = '';
+  feed.forEach((m,i) => {
+    if(m.t === 'date'){ h += '<div class="date-sep"><span>'+esc(m.label)+'</span></div>'; return; }
+    const prev = feed[i-1], next = feed[i+1];
+    const head = !(prev && prev.t === 'msg' && prev.p === m.p && m.cont);
+    const last = !(next && next.t === 'msg' && next.p === m.p && next.cont);
+    h += '<div class="row"><div class="avatar-slot">'
+      + (last ? '<div class="ph" style="background:'+P[m.p].av+'"></div>' : '')
+      + '</div>' + bubbleHTML(m, head) + '</div>';
+  });
+  area.innerHTML = h + '<div style="height:2px"></div>';
+  area.scrollTop = area.scrollHeight;
+}
+render();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+</script>
+</body>
+</html>
