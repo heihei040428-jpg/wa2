@@ -15,26 +15,8 @@ html,body{height:100%;overflow:hidden;-webkit-tap-highlight-color:transparent;-w
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif}
 body{background:#F4F1EA}
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh;background:#F4F1EA;position:relative}
-.statusbar{display:flex;align-items:center;justify-content:space-between;
-  padding:0 26px;height:44px;flex-shrink:0;background:#F4F1EA;color:#000;
-  font-size:16px;font-weight:600;letter-spacing:.2px}
-.statusbar .sb-left{display:flex;align-items:center;gap:4px}
-.statusbar .sb-right{display:flex;align-items:center;gap:5px}
-.statusbar .sb-bars{display:flex;align-items:flex-end;gap:1.5px;height:11px}
-.statusbar .sb-bars i{width:3px;background:#000;border-radius:1px}
-.statusbar .sb-bars i:nth-child(1){height:4px}
-.statusbar .sb-bars i:nth-child(2){height:6px}
-.statusbar .sb-bars i:nth-child(3){height:8.5px}
-.statusbar .sb-bars i:nth-child(4){height:11px}
-.statusbar .sb-net{font-size:13px;font-weight:600}
-.statusbar .sb-batt{background:#000;color:#fff;font-size:11.5px;font-weight:600;
-  padding:1.5px 5px;border-radius:5px;line-height:1.15}
-.statusbar .sb-rec{width:13px;height:13px;border-radius:3px;background:#000;
-  display:inline-block;position:relative}
-.statusbar .sb-rec::after{content:'';position:absolute;inset:3.5px;
-  border-radius:1px;background:#F4F1EA}
 .header{display:flex;align-items:center;gap:6px;padding:4px 12px 8px;flex-shrink:0;
-  background:#F4F1EA;position:relative;z-index:10}
+  background:#F4F1EA;position:relative;z-index:10;padding-top:calc(4px + env(safe-area-inset-top))}
 .header .back{display:flex;align-items:center;gap:2px;height:33px;padding:0 11px 0 8px;
   border-radius:17px;background:rgba(255,255,255,.62);backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);text-decoration:none;flex-shrink:0}
@@ -136,14 +118,6 @@ body{background:#F4F1EA}
 </head>
 <body>
 <div class="app">
-<div class="statusbar">
-  <div class="sb-left"><span>17:32</span><span class="sb-rec"></span></div>
-  <div class="sb-right">
-    <span class="sb-bars"><i></i><i></i><i></i><i></i></span>
-    <span class="sb-net">5G</span>
-    <span class="sb-batt">84</span>
-  </div>
-</div>
 <div class="header">
   <a class="back" href="#" onclick="return false">
     <svg viewBox="0 0 11 19"><path d="M9.5 1.5L2 9.5l7.5 8"/></svg><span>7</span>
